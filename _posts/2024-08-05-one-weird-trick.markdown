@@ -34,7 +34,7 @@ Each of these bullets is a big subject so I’m going to cherry pick.
 Some shops don’t do formal tech designs and others write extensive specification documents up front before a single line of code is written. The context matters but at the end of the day a tech design is an attempt to explore the problem space before we get to the expensive work of programming. It may feel like wasted time writing a document when you could be writing code but problems are easier and cheaper to fix when we find them early in the dev cycle.
 
 ### Key communication:
-Find a solution that fits the current business requirements but can evolve as requirements change. The tech design should clearly summarize the options that were considered, with linked references for folks who want to dig into the details. It is important to briefly cover the options that were not selected and why.
+Find a solution that fits the current business requirements but can evolve as requirements change. The tech design should clearly summarize the options that were considered, with linked references for folks who want to dig into the details. It is important to briefly cover the options that were _not_ selected and why.
 
 This leads to another important aspect of the tech design - the recommendation. A big part of the value of the tech design is the recommendation. This is where the developer’s experience, research and communication skills come together to present the path forward. The team may agree and move forward as-is or discuss it and go another way but a cogent recommendation should power that conversation.
 
@@ -69,7 +69,7 @@ As an organization grows it becomes increasingly challenging to keep everyone on
 - emoji reactions to signal receipt of information (good, bad or indifferent - send it!)
 - pinned posts - mark salient info for yourself or for newbies onboarding later
 - create a thread - avoid noise in the main channel but preserve details (with time stamps!) for later reference or lurkers following along
-- DRY - forward posts from public channels instead of copy/pasting in order to keep the discussion in one place
+- [DRY](https://en.wikipedia.org/wiki/Don't_repeat_yourself) - forward posts from public channels instead of copy/pasting in order to keep the discussion in one place
 - use channels instead of DMs - err on the side of more public communication* to facilitate involving more folks in the conversation later, if needed
 - use @mentions for groups rather than individuals where possible - ideally your teams have aliases such that you don’t need a specific person to respond
 
@@ -86,14 +86,14 @@ There’s a lot more to say about Slack. I was initially skeptical of Huddles bu
 ### The hard part is making it seem obvious
 It is well understood that programmers spend far more time reading code than they do writing it. The subtext here is that a machine (an interpreter executable, a compiler, etc.) does not care how complicated your code is as long as it fits the constraints of the system. On the other hand, a human who must understand that code will spend more time and energy (and frustration) trying to grok code that is complex, crufty or “clever.”
 
-In this context, the primary goal should be to help that future human reader come to a correct understanding as quickly and easily as possible. This is another area with a vast amount of commentary and advice from folks far more qualified than I am but I do want to emphasize that good code is a concise, clear communication from the code author to the (human) code reader. Simple, obvious code is surprisingly challenging to create but the rewards of that effort compound over time.
+In this context, the primary goal should be to help that future human reader come to a correct understanding as quickly and easily as possible. This is another area with a vast amount of commentary and advice from folks far more qualified than I am but I do want to emphasize that good code is a concise, clear communication from the code author to the (human) code reader. Obvious code is surprisingly challenging to create but the rewards of that effort compound over time.
 
-There are multiple layers of communication available here. The code should be as simple as possible (but no simpler! 😉). In places where there is still ambiguity in the code, a brief comment can be invaluable. If there are outright gotchas or confusing details in the data, perhaps a longer comment is needed. Where you did a lot of research into other solutions or maybe went down an unproductive path for some reason, save the next person that trouble by documenting it in the commit comments or the change description!
+There are multiple layers of communication available here. The code should be as simple as possible ([but no simpler!](https://quoteinvestigator.com/2011/05/13/einstein-simple/) 😉). In places where there is still ambiguity in the code, a brief comment can be invaluable. If there are outright gotchas or confusing details in the data, perhaps a longer comment is needed. Where you did a lot of research into other solutions or maybe went down an unproductive path for some reason, save the next person that trouble by documenting it in the commit comments or the change description!
 
-A quick note on commit comments: please make them succinct but meaningful. Tools like blame and git log are far more helpful when the content they surface is thoughtfully created. Hopefully your team is using Conventional Commits!
+A quick note on commit comments: please make them succinct but meaningful. Tools like [blame](https://www.cloudbees.com/blog/git-blame-explained) and `git log` are far more helpful when the content they surface is thoughtfully created. Hopefully your team is using [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/#summary)!
 
 ### Key communication:
-Consider the human readers more than the machine readers of your code. As a wise man once said:
+Consider the human readers more than the machine readers of your code. As [a wise man once said](https://www.defprogramming.com/quotes-by/martin-golding/):
 
 > Always code as if the guy who ends up maintaining your code will be a violent psychopath who knows where you live.
 -Martin Golding

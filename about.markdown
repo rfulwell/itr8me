@@ -6,6 +6,8 @@ permalink: /about/
 
 My name is Rob and this is my blog.
 
+Everything on this site is a work in progress and I'm grateful for all feedback.
+
 I have been working in technology for three decades and along the way, I've learned a few things
 and developed some opinions. This blog is my attempt to share kernels of wisdom that I've found
 valuable and perhaps discuss some interesting open questions.

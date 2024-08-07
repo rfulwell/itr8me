@@ -22,7 +22,7 @@ title: itr8me
 email: rob.fulwell+itr8me@gmail.com
 description: >- # this means to ignore newlines until "baseurl:"
   A personal blog about continuous improvement through small changes 
-  with a focus on technology, communication and the human condition. 
+  with a focus on technology, communication, and the human condition. 
   You know, just the simple stuff ;-)
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "https://itr8.me" # the base hostname & protocol for your site, e.g. http://example.com

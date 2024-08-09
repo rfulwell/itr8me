@@ -34,4 +34,6 @@ gem "http_parser.rb", "~> 0.6.0", :platforms => [:jruby]
 
 # convenient command lines for writing posts, etc.
 gem 'jekyll-compose', group: [:jekyll_plugins]
+
+# missing dependency for default jekyll config/theme
 gem "webrick", "~> 1.8"

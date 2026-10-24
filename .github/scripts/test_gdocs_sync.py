@@ -2,7 +2,7 @@ import base64
 import json
 import tempfile
 import unittest
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -14,7 +14,20 @@ PNG_B64 = base64.b64encode(PNG).decode()
 
 
 def modified(minutes_ago):
-    return (NOW - timedelta(minutes=minutes_ago)).astimezone(ZoneInfo("UTC")).isoformat().replace("+00:00", "Z")
+    return (NOW - timedelta(minutes=minutes_ago)).astimezone(timezone.utc)
+
+
+def folder_page(*items):
+    """A Drive folder page embedding items as (id, name, mime, modified ms)."""
+    rows = [[i, ["parent"], name, mime, 0, None, 0, 0, 0, ms - 5000, ms] for i, name, mime, ms in items]
+    data = json.dumps([rows or None, None], ensure_ascii=False).encode("utf-16-le")
+    js_escapes = {"[": "\\x5b", "]": "\\x5d", '"': "\\x22", "\\": "\\x5c", "/": "\\/"}
+    # Escape like Drive does, with non-ASCII as \u escapes of UTF-16 code units.
+    escaped = "".join(
+        f"\\u{unit:04x}" if unit > 127 else js_escapes.get(chr(unit), chr(unit))
+        for unit in (int.from_bytes(data[i:i + 2], "little") for i in range(0, len(data), 2))
+    )
+    return f"<script>window['_DRIVE_ivd'] = '{escaped}';if (window['_DRIVE_ivdc'])</script>"
 
 
 class FakeDrive:
@@ -23,7 +36,7 @@ class FakeDrive:
         self.exported = []
 
     def add(self, doc_id, name, minutes_ago, markdown="Hello."):
-        self.docs[doc_id] = ({"id": doc_id, "name": name, "modifiedTime": modified(minutes_ago)}, markdown)
+        self.docs[doc_id] = ({"id": doc_id, "name": name, "modified": modified(minutes_ago)}, markdown)
 
     def list_docs(self, folder_id):
         return [meta for meta, _ in self.docs.values()]
@@ -41,6 +54,45 @@ class IsDraftTest(unittest.TestCase):
     def test_not_drafts(self):
         for title in ["Drafting a plan", "My draft", "Draftee", "Untitled thoughts", ""]:
             self.assertFalse(g.is_draft(title), title)
+
+
+class FolderPageTest(unittest.TestCase):
+    def test_parses_items_and_modified_time(self):
+        html = folder_page(("d1", 'Caf\u00e9 \U0001F600 "quoted" a/b', g.DOC_MIME, 1603978740000))
+        self.assertEqual(
+            g.parse_folder_page(html),
+            [("d1", 'Caf\u00e9 \U0001F600 "quoted" a/b', g.DOC_MIME, datetime(2020, 10, 29, 13, 39, tzinfo=timezone.utc))],
+        )
+
+    def test_empty_folder(self):
+        self.assertEqual(g.parse_folder_page(folder_page()), [])
+
+    def test_missing_data_raises(self):
+        with self.assertRaises(RuntimeError):
+            g.parse_folder_page("<html>Sign in</html>")
+
+
+class ScrapingDrive(g.Drive):
+    def __init__(self, pages):
+        self.pages = pages
+
+    def _get(self, url):
+        return "text/html", self.pages[url.rsplit("/", 1)[1]]
+
+
+class ListDocsTest(unittest.TestCase):
+    def test_recurses_into_subfolders_and_skips_other_files(self):
+        drive = ScrapingDrive({
+            "root": folder_page(("d1", "One", g.DOC_MIME, 1000), ("sub", "2024", g.FOLDER_MIME, 1000),
+                                ("f1", "photo.jpg", "image/jpeg", 1000)),
+            "sub": folder_page(("d2", "Two", g.DOC_MIME, 2000)),
+        })
+        self.assertEqual([d["id"] for d in drive.list_docs("root")], ["d1", "d2"])
+
+    def test_full_folder_page_raises(self):
+        items = [(f"d{n}", f"Post {n}", g.DOC_MIME, 1000) for n in range(g.FOLDER_PAGE_LIMIT)]
+        with self.assertRaisesRegex(RuntimeError, "subfolder"):
+            ScrapingDrive({"root": folder_page(*items)}).list_docs("root")
 
 
 class ConvertTest(unittest.TestCase):

@@ -53,7 +53,6 @@ jobs:
       - name: Sync from Google Docs
         run: python .github/scripts/gdocs_sync.py
         env:
-          GDRIVE_API_KEY: ${{ secrets.GDRIVE_API_KEY }}
           GDRIVE_FOLDER_ID: ${{ vars.GDRIVE_FOLDER_ID }}
       - name: Commit changes
         id: commit

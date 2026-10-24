@@ -11,6 +11,10 @@ on:
   push:
     branches: ["main"]
 
+  # Picks up new and edited posts from Google Docs (see .github/scripts/gdocs_sync.py)
+  schedule:
+    - cron: "*/5 * * * *"
+
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
@@ -27,12 +31,56 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # Build job
+  # Sync posts from Google Docs and commit any changes. This runs in the same
+  # workflow as the deploy because pushes made with GITHUB_TOKEN don't trigger
+  # other workflows.
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      changed: ${{ steps.commit.outputs.changed }}
+      sha: ${{ steps.commit.outputs.sha }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Test sync script
+        run: python -m unittest discover -s .github/scripts -p 'test_*.py'
+      - name: Sync from Google Docs
+        run: python .github/scripts/gdocs_sync.py
+        env:
+          GDRIVE_API_KEY: ${{ secrets.GDRIVE_API_KEY }}
+          GDRIVE_FOLDER_ID: ${{ vars.GDRIVE_FOLDER_ID }}
+      - name: Commit changes
+        id: commit
+        run: |
+          git add -A
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "chore: sync posts from Google Docs"
+            git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+  # Build job. Scheduled runs only rebuild when the sync changed something; a
+  # failed sync doesn't block deploying a push.
   build:
+    needs: sync
+    if: ${{ !cancelled() && (github.event_name != 'schedule' || needs.sync.outputs.changed == 'true') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.sync.outputs.sha || github.sha }}
       - name: Setup Ruby
         uses: ruby/setup-ruby@8575951200e472d5f2d95c625da0c7bec8217c42 # v1.161.0
         with:
@@ -58,6 +106,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     needs: build
+    if: ${{ !cancelled() && needs.build.result == 'success' }}
     steps:
       - name: Deploy to GitHub Pages
         id: deployment

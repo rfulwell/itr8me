@@ -22,4 +22,4 @@ In my non-techie life, I run a lot of stairs and generally enjoy fast motorcycle
 that order!) although my street ride is a very modest sedan. I recommend a closed course
 like [Pacific Raceways](https://www.youtube.com/watch?v=NgTakNK6T6s) if you are a thrill seeker too.
 
-Find me on [LinkedIn](https://www.linkedin.com/in/robfulwell/) or [Twitter](https://twitter.com/rob_fulwell).
+Find me on [LinkedIn](https://www.linkedin.com/in/robfulwell/) or [Bluesky](https://bsky.app/profile/rfulwell.bsky.social).

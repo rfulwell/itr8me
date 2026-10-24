@@ -96,6 +96,43 @@ class ListDocsTest(unittest.TestCase):
 
 
 class ConvertTest(unittest.TestCase):
+    def test_typed_code_fence(self):
+        # Verbatim from a real Google Docs Markdown export.
+        md = (
+            "# **Sample Script**\n\n"
+            "\\`\\`\\`  \n"
+            "def greet\\_user(name: str) \\-\\> None:\n\n"
+            '    """Prints a customized greeting message to the console."""\n\n'
+            '    greeting \\= f"Hello, {name}\\! Welcome to the test system."\n\n'
+            "    print(greeting)\n\n"
+            'if \\_\\_name\\_\\_ \\== "\\_\\_main\\_\\_":\n\n'
+            '    greet\\_user("Developer")  \n'
+            "\\`\\`\\`\n\n"
+            "After \\_this\\_.\n"
+        )
+        body, _ = g.convert(md, "first post!", "first-post")
+        self.assertEqual(body, (
+            "# **Sample Script**\n\n"
+            "```\n"
+            "def greet_user(name: str) -> None:\n"
+            '    """Prints a customized greeting message to the console."""\n'
+            '    greeting = f"Hello, {name}! Welcome to the test system."\n'
+            "    print(greeting)\n"
+            'if __name__ == "__main__":\n'
+            '    greet_user("Developer")\n'
+            "```\n\n"
+            "After \\_this\\_."
+        ))
+
+    def test_fence_language_and_blank_line(self):
+        md = "\\`\\`\\`python\n\nx \\= 1\n\n\n\ny \\= '\\\\n'\n\n\\`\\`\\`"
+        body, _ = g.convert(md, "t", "t")
+        self.assertEqual(body, "```python\nx = 1\n\ny = '\\n'\n```")
+
+    def test_inline_code(self):
+        body, _ = g.convert("Run \\`git log \\-\\-oneline\\` now \\*really\\*", "t", "t")
+        self.assertEqual(body, "Run `git log --oneline` now \\*really\\*")
+
     def test_extracts_reference_and_inline_images(self):
         md = (
             "# My Post\n\nIntro ![][image1] and ![alt](data:image/png;base64," + PNG_B64 + ")\n\n"

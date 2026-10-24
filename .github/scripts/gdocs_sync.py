@@ -59,6 +59,11 @@ IMAGE_EXTS = {"jpeg": "jpg", "svg+xml": "svg"}
 # for reference-style image links.
 DATA_URI = re.compile(r"(<)?data:image/([\w.+-]+);base64,([A-Za-z0-9+/=]+)(?(1)>)")
 HEADING = re.compile(r"#{1,6}[ \t]+(.*?)[ \t#]*$")
+# Backticks typed in a doc come out escaped, so ```code``` and `code` have to be
+# found in their escaped form.
+CODE_FENCE = re.compile(r"^[ \t]*\\`\\`\\`([\w+-]*)(.*?)\\`\\`\\`[ \t]*$", re.M | re.S)
+INLINE_CODE = re.compile(r"\\`([^`\n]+?)\\`")
+MD_ESCAPE = re.compile(r"\\([!-/:-@\[-`{-~])")
 
 
 def words(text):
@@ -125,6 +130,17 @@ class Drive:
         return text
 
 
+def unescape(text):
+    return MD_ESCAPE.sub(r"\1", text)
+
+
+def code_block(match):
+    # Each line of code is its own paragraph in the doc (blank line between) or
+    # a line break (two trailing spaces), so turn both back into plain newlines.
+    code = re.sub(r"[ \t]+\n", "\n", match.group(2)).replace("\n\n", "\n").strip("\n")
+    return f"```{match.group(1)}\n{unescape(code)}\n```"
+
+
 def convert(markdown, title, slug):
     """Turn exported Markdown into a post body plus {filename: bytes} images."""
     images = {}
@@ -137,6 +153,8 @@ def convert(markdown, title, slug):
         return f"/{ASSETS_DIR}/{slug}/{name}"
 
     body = DATA_URI.sub(extract, markdown).strip()
+    body = CODE_FENCE.sub(code_block, body)
+    body = INLINE_CODE.sub(lambda m: f"`{unescape(m.group(1))}`", body)
 
     # The post layout already shows the title, so drop a leading heading that
     # repeats it.

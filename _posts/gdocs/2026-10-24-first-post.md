@@ -5,11 +5,8 @@ date: 2026-10-24 15:53:00 -0700
 gdoc_id: 14W0hnF1TGbqbKgDTlAVsEwhHUUS5Y89uRaMIVz7MvcM
 ---
 {% raw %}
-# 
-
 # [**![][image1]**](https://es.wikipedia.org/wiki/Archivo:SpongeBob_SquarePants_character.png)
 
-# 
 
 # **Sample Script**
 

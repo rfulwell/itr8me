@@ -20,10 +20,8 @@ That page only shows FOLDER_PAGE_LIMIT items, so a folder that reaches it fails
 the sync rather than unpublishing the docs it can't see; move older posts into
 a subfolder.
 
-Setup:
-  1. Share the Drive folder as "Anyone with the link can view".
-  2. In the GitHub repo settings, add the variable GDRIVE_FOLDER_ID (the ID at
-     the end of the folder's URL).
+The folder must be shared as "Anyone with the link can view"; its ID is set as
+GDRIVE_FOLDER_ID in .github/workflows/jekyll.yml.
 
 Uses only the Python standard library.
 """

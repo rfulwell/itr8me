@@ -8,8 +8,9 @@ as a draft so a freshly created doc never goes live by accident.
 
 Edits go live once a doc has been quiet for QUIET, so half-written sentences
 aren't published. A doc whose title goes from draft to non-draft publishes on
-the next run regardless. Removing a doc from the folder, trashing it, or
-renaming it back to a draft takes the post down.
+the next run regardless, and a manual run (GDOCS_PUBLISH_NOW=true, set by the
+workflow) publishes every doc without waiting. Removing a doc from the folder,
+trashing it, or renaming it back to a draft takes the post down.
 
 Each post keeps the slug and date from its first publish, recorded in
 .gdocs/state.json, so renaming a published doc doesn't change its URL.
@@ -219,7 +220,7 @@ def publish(root, drive, doc, entry, state, now):
         (image_dir / name).write_bytes(content)
 
 
-def sync(root, drive, folder_id, now):
+def sync(root, drive, folder_id, now, quiet=QUIET):
     state_path = root / STATE_FILE
     state = json.loads(state_path.read_text()) if state_path.exists() else {}
 
@@ -231,7 +232,7 @@ def sync(root, drive, folder_id, now):
         if entry["draft"]:
             unpublish(root, entry)
             continue
-        if was_draft is not True and now - doc["modified"] < QUIET:
+        if was_draft is not True and now - doc["modified"] < quiet:
             print(f"Waiting for edits to settle: {doc['name']}")
             continue
         print(f"Publishing: {doc['name']}")
@@ -251,7 +252,8 @@ def main():
         print("GDRIVE_FOLDER_ID not set; skipping Google Docs sync.")
         return 0
     now = datetime.now(ZoneInfo(os.environ.get("SITE_TZ", "America/Los_Angeles")))
-    sync(Path.cwd(), Drive(), folder_id, now)
+    quiet = timedelta(0) if os.environ.get("GDOCS_PUBLISH_NOW") == "true" else QUIET
+    sync(Path.cwd(), Drive(), folder_id, now, quiet)
     return 0
 
 

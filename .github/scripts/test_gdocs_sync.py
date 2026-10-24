@@ -146,6 +146,12 @@ class ConvertTest(unittest.TestCase):
         self.assertIn(f"](/assets/gdocs/my-post/{digest}.png)", body)
         self.assertIn(f"[image1]: /assets/gdocs/my-post/{digest}.jpg", body)
 
+    def test_drops_empty_headings(self):
+        # Verbatim from a real export: blank Heading 1 lines around an image.
+        md = "# \n\n# [**![][image1]**](https://example.com)\n\n# \n\n# **Sample Script**\n"
+        body, _ = g.convert(md, "first post!", "first-post")
+        self.assertEqual(body, "# [**![][image1]**](https://example.com)\n\n\n# **Sample Script**")
+
     def test_keeps_heading_that_is_not_the_title(self):
         body, _ = g.convert("# Background\n\nText", "My post", "my-post")
         self.assertTrue(body.startswith("# Background"))

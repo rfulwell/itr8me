@@ -60,6 +60,9 @@ IMAGE_EXTS = {"jpeg": "jpg", "svg+xml": "svg"}
 # for reference-style image links.
 DATA_URI = re.compile(r"(<)?data:image/([\w.+-]+);base64,([A-Za-z0-9+/=]+)(?(1)>)")
 HEADING = re.compile(r"#{1,6}[ \t]+(.*?)[ \t#]*$")
+# A blank line styled as a heading in the doc exports as a bare "#", which
+# Jekyll would show as a literal "#".
+EMPTY_HEADING = re.compile(r"^#{1,6}[ \t]*$\n?", re.M)
 # Backticks typed in a doc come out escaped, so ```code``` and `code` have to be
 # found in their escaped form.
 CODE_FENCE = re.compile(r"^[ \t]*\\`\\`\\`([\w+-]*)(.*?)\\`\\`\\`[ \t]*$", re.M | re.S)
@@ -153,7 +156,8 @@ def convert(markdown, title, slug):
         images[name] = content
         return f"/{ASSETS_DIR}/{slug}/{name}"
 
-    body = DATA_URI.sub(extract, markdown).strip()
+    body = DATA_URI.sub(extract, markdown)
+    body = EMPTY_HEADING.sub("", body).strip()
     body = CODE_FENCE.sub(code_block, body)
     body = INLINE_CODE.sub(lambda m: f"`{unescape(m.group(1))}`", body)
 

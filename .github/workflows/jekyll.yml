@@ -55,6 +55,8 @@ jobs:
         env:
           # Public blog folder: https://drive.google.com/drive/folders/1LNY6b8HOyFZ58GWvLnQ8hg7RStqUY-3m
           GDRIVE_FOLDER_ID: 1LNY6b8HOyFZ58GWvLnQ8hg7RStqUY-3m
+          # A manually started run is a "publish now": skip the wait for edits to settle.
+          GDOCS_PUBLISH_NOW: ${{ github.event_name == 'workflow_dispatch' }}
       - name: Commit changes
         id: commit
         run: |

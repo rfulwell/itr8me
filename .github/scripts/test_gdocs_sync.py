@@ -181,6 +181,11 @@ class SyncTest(unittest.TestCase):
         self.run_sync(NOW + timedelta(minutes=8))
         self.assertEqual(self.posts(), ["2026-10-24-new-post.md"])
 
+    def test_publish_now_skips_wait(self):
+        self.drive.add("a", "New post", 0)
+        g.sync(self.root, self.drive, "folder", NOW, quiet=timedelta(0))
+        self.assertEqual(self.posts(), ["2026-10-24-new-post.md"])
+
     def test_draft_never_publishes(self):
         self.drive.add("a", "Draft: secret", 60)
         self.run_sync()

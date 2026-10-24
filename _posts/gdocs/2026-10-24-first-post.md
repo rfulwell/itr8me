@@ -5,9 +5,11 @@ date: 2026-10-24 15:53:00 -0700
 gdoc_id: 14W0hnF1TGbqbKgDTlAVsEwhHUUS5Y89uRaMIVz7MvcM
 ---
 {% raw %}
-# **Test Document**
+# 
 
-[Modern Technology Workspace](https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&q=80)
+# [**![][image1]**](https://es.wikipedia.org/wiki/Archivo:SpongeBob_SquarePants_character.png)
+
+# 
 
 # **Sample Script**
 
@@ -27,4 +29,6 @@ if __name__ == "__main__":
 | FEAT-01 | User Authentication | Completed |
 | FEAT-02 | Real-Time Sync | In Progress |
 | FEAT-03 | Analytics Dashboard | Pending |
+
+[image1]: /assets/gdocs/first-post/cfc73d960145.png
 {% endraw %}

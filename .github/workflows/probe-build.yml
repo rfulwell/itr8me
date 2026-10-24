@@ -1,0 +1,22 @@
+# Temporary: checks the Pages build job's Ruby setup on the current runner image.
+name: Probe build
+on:
+  push:
+    branches: ["claude/blog-google-docs-workflow-3j19xf"]
+    paths: [".github/workflows/probe-build.yml"]
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.3'
+          bundler-cache: true
+          cache-version: 0
+      - run: bundle exec jekyll build
+        env:
+          JEKYLL_ENV: production
+      - run: ls _site

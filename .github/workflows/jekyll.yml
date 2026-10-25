@@ -18,11 +18,18 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+  # Rebuilds the site's PR previews (see .github/scripts/build_previews.py)
+  # when a pull request opens, updates or closes. pull_request_target runs this
+  # workflow as it is on main, which is what's allowed to deploy Pages.
+  pull_request_target:
+    types: [opened, synchronize, reopened, closed]
+
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
   pages: write
   id-token: write
+  pull-requests: read
 
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
 # However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
@@ -35,6 +42,7 @@ jobs:
   # workflow as the deploy because pushes made with GITHUB_TOKEN don't trigger
   # other workflows.
   sync:
+    if: ${{ github.event_name != 'pull_request_target' }}
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -72,11 +80,15 @@ jobs:
           fi
           echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
-  # Build job. Scheduled runs only rebuild when the sync changed something; a
-  # failed sync doesn't block deploying a push.
+  # Build job. A failed sync doesn't block deploying a push.
   build:
     needs: sync
-    if: ${{ !cancelled() && (github.event_name != 'schedule' || needs.sync.outputs.changed == 'true') }}
+    # Scheduled runs rebuild only when the sync changed something, and pull
+    # requests from forks don't trigger a rebuild at all.
+    if: >-
+      ${{ !cancelled() &&
+          (github.event_name != 'schedule' || needs.sync.outputs.changed == 'true') &&
+          (github.event_name != 'pull_request_target' || github.event.pull_request.head.repo.full_name == github.repository) }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -96,6 +108,12 @@ jobs:
         # Outputs to the './_site' directory by default
         run: bundle exec jekyll build --baseurl "${{ steps.pages.outputs.base_path }}"
         env:
+          JEKYLL_ENV: production
+      - name: Build previews of open pull requests
+        run: python3 .github/scripts/build_previews.py
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          BASE_PATH: ${{ steps.pages.outputs.base_path }}
           JEKYLL_ENV: production
       - name: Upload artifact
         # Automatically uploads an artifact from the './_site' directory by default

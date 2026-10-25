@@ -1,0 +1,200 @@
+---
+# Only the main Sass file needs front matter (the dashes are enough)
+---
+
+@import "minima";
+
+// Dark mode. minima 2.5 compiles its colors in, so the dark palette restates
+// each colored rule. It applies when the reader picks dark with the header
+// switch (data-theme="dark", set in head.html), or when their system prefers
+// dark and they haven't picked light.
+
+$dark-background:      #1e1e1e;
+$dark-surface:         #262626;
+$dark-surface-strong:  #2e2e2e;
+$dark-code-background: #2a2a2a;
+$dark-border:          #3c3c3c;
+$dark-text:            #e3e3e3;
+$dark-muted:           #a0a0a0;
+$dark-link:            #6cb2ff;
+$dark-link-visited:    #9fc3f5;
+
+@mixin dark-theme {
+  color-scheme: dark;
+
+  body {
+    color: $dark-text;
+    background-color: $dark-background;
+  }
+
+  a {
+    color: $dark-link;
+
+    &:visited {
+      color: $dark-link-visited;
+    }
+
+    &:hover {
+      color: $dark-text;
+    }
+  }
+
+  blockquote {
+    color: $dark-muted;
+    border-left-color: $dark-border;
+  }
+
+  pre,
+  code {
+    border-color: $dark-border;
+    background-color: $dark-code-background;
+  }
+
+  .svg-icon {
+    fill: $dark-muted;
+  }
+
+  table {
+    color: $dark-text;
+    border-color: $dark-border;
+
+    tr:nth-child(even) {
+      background-color: $dark-surface;
+    }
+
+    th {
+      background-color: $dark-surface-strong;
+      border-color: $dark-border;
+      border-bottom-color: lighten($dark-border, 12%);
+    }
+
+    td {
+      border-color: $dark-border;
+    }
+  }
+
+  .site-header {
+    border-top-color: lighten($dark-border, 12%);
+    border-bottom-color: $dark-border;
+  }
+
+  .site-title,
+  .site-title:visited,
+  .site-nav .page-link {
+    color: $dark-text;
+  }
+
+  .site-nav {
+    @include media-query($on-palm) {
+      background-color: $dark-background;
+      border-color: $dark-border;
+
+      .menu-icon > svg {
+        fill: $dark-muted;
+      }
+    }
+  }
+
+  .site-footer {
+    border-top-color: $dark-border;
+  }
+
+  .footer-col-wrapper,
+  .post-meta {
+    color: $dark-muted;
+  }
+
+  .theme-switch-track {
+    background-color: $dark-link;
+  }
+
+  .theme-switch-thumb {
+    transform: translateX(16px);
+  }
+
+  // Syntax highlighting, after GitHub's dark palette.
+  .highlight,
+  .highlighter-rouge .highlight {
+    background: $dark-code-background;
+  }
+
+  .highlight {
+    .c, .cm, .c1, .cs, .cp, .gh, .gu, .go, .gp, .bp { color: #8b949e }
+    .err                     { color: #ffa198; background-color: #490202 }
+    .k, .kc, .kd, .kp, .kr, .ow, .ne, .nn { color: #ff7b72 }
+    .kt, .nc, .nf            { color: #d2a8ff }
+    .m, .mf, .mh, .mi, .mo, .il, .nb, .no, .na, .nv, .vc, .vg, .vi { color: #79c0ff }
+    .s, .sb, .sc, .sd, .s2, .se, .sh, .si, .sx, .s1, .ss { color: #a5d6ff }
+    .sr, .nt                 { color: #7ee787 }
+    .ni                      { color: #ffa657 }
+    .gd, .gd .x              { color: #ffdcd7; background-color: #67060c }
+    .gi, .gi .x              { color: #aff5b4; background-color: #033a16 }
+    .gr, .gt                 { color: #ffa198 }
+    .w                       { color: #6e7681 }
+  }
+}
+
+html[data-theme="dark"] {
+  @include dark-theme;
+}
+
+html[data-theme="light"] {
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  html:not([data-theme="light"]) {
+    @include dark-theme;
+  }
+}
+
+// Light/dark switch in the header.
+.theme-switch {
+  float: right;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 17px 20px 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+
+  .svg-icon {
+    width: 14px;
+    height: 14px;
+    padding: 0;
+  }
+
+  @include media-query($on-palm) {
+    // Leave room for minima's menu button, which sits at the top right.
+    margin-right: 50px;
+  }
+}
+
+.theme-switch-track {
+  position: relative;
+  width: 34px;
+  height: 18px;
+  border-radius: 9px;
+  background-color: darken($grey-color-light, 15%);
+  transition: background-color 0.2s;
+}
+
+.theme-switch-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background-color: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s;
+}
+
+.theme-switch:focus-visible {
+  outline: 2px solid $brand-color;
+  outline-offset: 3px;
+  border-radius: 4px;
+}

@@ -104,12 +104,13 @@ $dark-link-visited:    #9fc3f5;
     color: $dark-muted;
   }
 
-  .theme-switch-track {
-    background-color: $dark-link;
+  .theme-switch {
+    background-color: $dark-surface-strong;
   }
 
   .theme-switch-thumb {
-    transform: translateX(16px);
+    background-color: lighten($dark-border, 8%);
+    box-shadow: none;
   }
 
   // Syntax highlighting, after GitHub's dark palette.
@@ -148,22 +149,42 @@ html[data-theme="light"] {
   }
 }
 
-// Light/dark switch in the header.
+// Light/auto/dark switch in the header. The highlight sits under the current
+// choice: auto when no choice is saved (no data-theme), otherwise light or dark.
+$theme-button-width: 26px;
+
 .theme-switch {
+  position: relative;
   float: right;
   display: flex;
-  align-items: center;
-  gap: 6px;
-  margin: 17px 20px 0;
-  padding: 0;
-  border: 0;
-  background: none;
-  cursor: pointer;
+  margin: 15px 20px 0;
+  padding: 2px;
+  border-radius: 12px;
+  background-color: $grey-color-light;
+
+  button {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: $theme-button-width;
+    height: 20px;
+    padding: 0;
+    border: 0;
+    border-radius: 10px;
+    background: none;
+    cursor: pointer;
+  }
 
   .svg-icon {
     width: 14px;
     height: 14px;
     padding: 0;
+  }
+
+  button:focus-visible {
+    outline: 2px solid $brand-color;
+    outline-offset: 1px;
   }
 
   @include media-query($on-palm) {
@@ -172,29 +193,23 @@ html[data-theme="light"] {
   }
 }
 
-.theme-switch-track {
-  position: relative;
-  width: 34px;
-  height: 18px;
-  border-radius: 9px;
-  background-color: darken($grey-color-light, 15%);
-  transition: background-color 0.2s;
-}
-
 .theme-switch-thumb {
   position: absolute;
   top: 2px;
   left: 2px;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
+  width: $theme-button-width;
+  height: 20px;
+  border-radius: 10px;
   background-color: #fff;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
+  transform: translateX($theme-button-width);
   transition: transform 0.2s;
 }
 
-.theme-switch:focus-visible {
-  outline: 2px solid $brand-color;
-  outline-offset: 3px;
-  border-radius: 4px;
+html[data-theme="light"] .theme-switch-thumb {
+  transform: translateX(0);
+}
+
+html[data-theme="dark"] .theme-switch-thumb {
+  transform: translateX(2 * $theme-button-width);
 }

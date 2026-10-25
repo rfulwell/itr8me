@@ -1,4 +1,4 @@
-{%- comment -%}minima 2.5.1's header.html, plus the light/dark switch.{%- endcomment -%}
+{%- comment -%}minima 2.5.1's header.html, plus the light/auto/dark switch.{%- endcomment -%}
 <header class="site-header" role="banner">
 
   <div class="wrapper">
@@ -28,33 +28,39 @@
       </nav>
     {%- endif -%}
 
-    <button class="theme-switch" type="button" role="switch" aria-checked="false" aria-label="Dark mode">
-      <svg class="svg-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5"/><path d="M11 1h2v4h-2zM11 19h2v4h-2zM1 11h4v2H1zM19 11h4v2h-4zM4.2 5.6l1.4-1.4 2.8 2.8-1.4 1.4zM15.6 17l1.4-1.4 2.8 2.8-1.4 1.4zM4.2 18.4l2.8-2.8 1.4 1.4-2.8 2.8zM15.6 7l2.8-2.8 1.4 1.4-2.8 2.8z"/></svg>
-      <span class="theme-switch-track"><span class="theme-switch-thumb"></span></span>
-      <svg class="svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 14.5A9 9 0 0 1 9.5 3a9 9 0 1 0 11.5 11.5z"/></svg>
-    </button>
+    <div class="theme-switch" role="radiogroup" aria-label="Color theme">
+      <span class="theme-switch-thumb" aria-hidden="true"></span>
+      <button type="button" role="radio" data-theme-choice="light" aria-label="Light" title="Light"><svg class="svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 7a5 5 0 1 0 0 10a5 5 0 0 0 0-10zM11 1h2v4h-2zM11 19h2v4h-2zM1 11h4v2H1zM19 11h4v2h-4zM4.2 5.6l1.4-1.4 2.8 2.8-1.4 1.4zM15.6 17l1.4-1.4 2.8 2.8-1.4 1.4zM4.2 18.4l2.8-2.8 1.4 1.4-2.8 2.8zM15.6 7l2.8-2.8 1.4 1.4-2.8 2.8z"/></svg></button>
+      <button type="button" role="radio" data-theme-choice="auto" aria-label="Auto: follow your system setting" title="Auto: follow your system setting"><svg class="svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M12 2a10 10 0 1 1 0 20a10 10 0 0 1 0-20zm0 2.2a7.8 7.8 0 0 0 0 15.6z"/></svg></button>
+      <button type="button" role="radio" data-theme-choice="dark" aria-label="Dark" title="Dark"><svg class="svg-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 14.5A9 9 0 0 1 9.5 3a9 9 0 1 0 11.5 11.5z"/></svg></button>
+    </div>
     <script>
-      // The switch overrides the system setting, and the choice is remembered
-      // across visits. Its position comes from the CSS, so it's right even
-      // before this runs; this keeps aria-checked in step for screen readers.
+      // Light and dark override the system setting and are remembered across
+      // visits; auto forgets the choice so the system setting applies again.
+      // The highlight's position comes from the CSS, so it's right even before
+      // this runs; this keeps aria-checked in step for screen readers.
       (function () {
         var root = document.documentElement;
-        var toggle = document.querySelector(".theme-switch");
-        var systemDark = window.matchMedia("(prefers-color-scheme: dark)");
-        function isDark() {
-          var theme = root.getAttribute("data-theme");
-          return theme ? theme === "dark" : systemDark.matches;
-        }
+        var buttons = document.querySelectorAll(".theme-switch [data-theme-choice]");
         function render() {
-          toggle.setAttribute("aria-checked", String(isDark()));
+          var current = root.getAttribute("data-theme") || "auto";
+          buttons.forEach(function (button) {
+            button.setAttribute("aria-checked", String(button.getAttribute("data-theme-choice") === current));
+          });
         }
-        toggle.addEventListener("click", function () {
-          var theme = isDark() ? "light" : "dark";
-          root.setAttribute("data-theme", theme);
-          try { localStorage.setItem("theme", theme); } catch (e) {}
-          render();
+        buttons.forEach(function (button) {
+          button.addEventListener("click", function () {
+            var choice = button.getAttribute("data-theme-choice");
+            if (choice === "auto") {
+              root.removeAttribute("data-theme");
+              try { localStorage.removeItem("theme"); } catch (e) {}
+            } else {
+              root.setAttribute("data-theme", choice);
+              try { localStorage.setItem("theme", choice); } catch (e) {}
+            }
+            render();
+          });
         });
-        systemDark.addEventListener("change", render);
         render();
       })();
     </script>
